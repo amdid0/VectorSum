@@ -14,16 +14,24 @@
     </style>
 </head>
 <body>
+    <div style="display: flex; align-items: flex-start;">
     <canvas id="canvas" width="500" height="500"></canvas>
-    <button id="sumButton">Sum Vector</button>
+    <div style="margin-left: 20px;">
+        <h2>Vectors</h2>
+        <div id="display">
+        </div>
+    </div>
+</div>
+<button id="sumButton">VecSum</button> <!--VecSum-->
     <script>
         const canvas = document.getElementById("canvas");
         const ctx = canvas.getContext("2d");
         const vectors = [];
         const gridSize = 20;
+        const storage = []
         let startX, startY, endX, endY;
         let drawing = false;
-
+        
         
 
         function drawGrid() {
@@ -57,22 +65,29 @@
 
         canvas.addEventListener("mousemove", (e) => {
             if (drawing) {
+                
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 drawGrid();
                 drawVectors();
                 endX = e.offsetX;
                 endY = e.offsetY;
                 drawArrow(startX, startY, endX, endY, "blue");
+                
             }
         });
 
         canvas.addEventListener("mouseup", (e) => {
+            let vecse = `(${startX - 250}, ${250 - startY}), (${endX - 250}, ${250 - endY})`;
             drawing = false;
             endX = e.offsetX;
             endY = e.offsetY;
             vectors.push({ x: endX - startX, y: endY - startY, startX, startY });
             drawGrid();
             drawVectors();
+            if (vecse) {                                    //store Vecs
+                    storage.push(vecse);
+                    displayEntries();
+                }
         });
 
         document.getElementById("sumButton").addEventListener("click", () => {
@@ -88,12 +103,12 @@
         });
 
         function drawArrow(x1, y1, x2, y2, color = "black") {
-            const headLength = 10; 
+            const headLength = 10; // 화살촉 길이
             const dx = x2 - x1;
             const dy = y2 - y1;
             const angle = Math.atan2(dy, dx);
 
-            //Line
+            // Line
             ctx.beginPath();
             ctx.moveTo(x1, y1);
             ctx.lineTo(x2, y2);
@@ -101,7 +116,7 @@
             ctx.lineWidth = 2;
             ctx.stroke();
 
-            //Arrow
+            // Arrow
             ctx.beginPath();
             ctx.moveTo(x2, y2);
             ctx.lineTo(x2 - headLength * Math.cos(angle - Math.PI / 6), y2 - headLength * Math.sin(angle - Math.PI / 6));
@@ -114,6 +129,19 @@
         function drawVectors() {
             vectors.forEach(vector => {
                 drawArrow(vector.startX, vector.startY, vector.startX + vector.x, vector.startY + vector.y, "blue");
+            });
+        }
+
+        function displayEntries() {
+            // display return
+            const displayDiv = document.getElementById("display");
+            displayDiv.innerHTML = '';  // reset
+
+            // storage return
+            storage.forEach((entry, index) => {
+                const entryElement = document.createElement("div");
+                entryElement.innerText = `${index + 1}. ${entry}`;
+                displayDiv.appendChild(entryElement);
             });
         }
 
