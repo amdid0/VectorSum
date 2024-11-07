@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VecSum
+    </title>
+    <style>
+        #canvas {
+            border: 1px solid black;
+        }
+        button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="500" height="500"></canvas>
+    <button id="sumButton">벡터합</button>
+    <script>
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+        const vectors = [];
+        const gridSize = 20;
+        let startX, startY, endX, endY;
+        let drawing = false;
+
+        
+
+        function drawGrid() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = "#cccccc";
+            ctx.lineWidth = 1;
+
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2, 0);
+            ctx.lineTo(canvas.width / 2, 500);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height / 2);
+            ctx.lineTo(500, canvas.height / 2);
+            ctx.stroke();
+
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            ctx.fillStyle = "black";
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        canvas.addEventListener("mousedown", (e) => {
+            startX = e.offsetX;
+            startY = e.offsetY;
+            drawing = true;
+        });
+
+        canvas.addEventListener("mousemove", (e) => {
+            if (drawing) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                drawGrid();
+                drawVectors();
+                endX = e.offsetX;
+                endY = e.offsetY;
+                drawArrow(startX, startY, endX, endY, "blue");
+            }
+        });
+
+        canvas.addEventListener("mouseup", (e) => {
+            drawing = false;
+            endX = e.offsetX;
+            endY = e.offsetY;
+            vectors.push({ x: endX - startX, y: endY - startY, startX, startY });
+            drawGrid();
+            drawVectors();
+        });
+
+        document.getElementById("sumButton").addEventListener("click", () => {
+            let sumX = 0, sumY = 0;
+            vectors.forEach(vector => {
+                sumX += vector.x;
+                sumY += vector.y;
+            });
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawGrid();
+            drawVectors();
+            drawArrow(canvas.width / 2, canvas.height / 2, canvas.width / 2 + sumX, canvas.height / 2 + sumY, "red");
+        });
+
+        function drawArrow(x1, y1, x2, y2, color = "black") {
+            const headLength = 10; // 화살촉 길이
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+            const angle = Math.atan2(dy, dx);
+
+            // 선 그리기
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // 화살촉 그리기
+            ctx.beginPath();
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - headLength * Math.cos(angle - Math.PI / 6), y2 - headLength * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(x2 - headLength * Math.cos(angle + Math.PI / 6), y2 - headLength * Math.sin(angle + Math.PI / 6));
+            ctx.lineTo(x2, y2);
+            ctx.fillStyle = color;
+            ctx.fill();
+        }
+
+        function drawVectors() {
+            vectors.forEach(vector => {
+                drawArrow(vector.startX, vector.startY, vector.startX + vector.x, vector.startY + vector.y, "blue");
+            });
+        }
+
+        drawGrid();
+    </script>
+</body>
+</html>
